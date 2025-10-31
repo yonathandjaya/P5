@@ -146,7 +146,126 @@
 </footer>
 
 <script>
-  // (kode JavaScript tetap sama seperti sebelumnya)
+  // ===== BAGIAN: Menampilkan Opsi Kendaraan =====
+  const jenisKendaraan = document.getElementById("jenisKendaraan");
+  const mobilOptions = document.getElementById("mobilOptions");
+  const motorOptions = document.getElementById("motorOptions");
+  const jenisMobil = document.getElementById("jenisMobil");
+  const nonhybridOptions = document.getElementById("nonhybridOptions");
+
+  jenisKendaraan.addEventListener("change", () => {
+    mobilOptions.classList.add("hidden");
+    motorOptions.classList.add("hidden");
+
+    if (jenisKendaraan.value === "mobil") {
+      mobilOptions.classList.remove("hidden");
+    } else if (jenisKendaraan.value === "motor") {
+      motorOptions.classList.remove("hidden");
+    }
+  });
+
+  jenisMobil.addEventListener("change", () => {
+    nonhybridOptions.classList.add("hidden");
+    if (jenisMobil.value === "nonhybrid") {
+      nonhybridOptions.classList.remove("hidden");
+    }
+  });
+
+  // ===== BAGIAN: Hitung Konsumsi Bensin =====
+  const hitungBensinBtn = document.getElementById("hitungBensinBtn");
+  const hasilBensin = document.getElementById("hasilBensin");
+
+  hitungBensinBtn.addEventListener("click", () => {
+    const jarak = parseFloat(document.getElementById("jarakTempuh").value);
+    if (!jarak || jarak <= 0) {
+      hasilBensin.textContent = "Masukkan jarak tempuh yang valid!";
+      return;
+    }
+
+    let konsumsiPerLiter;
+
+    if (jenisKendaraan.value === "mobil") {
+      if (jenisMobil.value === "hybrid") konsumsiPerLiter = 20;
+      else if (jenisMobil.value === "nonhybrid") {
+        const jenisNonhybrid = document.getElementById("jenisNonhybrid").value;
+        if (jenisNonhybrid === "lcgc") konsumsiPerLiter = 17;
+        else if (jenisNonhybrid === "mpv") konsumsiPerLiter = 12;
+        else if (jenisNonhybrid === "suv") konsumsiPerLiter = 10;
+        else if (jenisNonhybrid === "sedanmenengah") konsumsiPerLiter = 14;
+      }
+    } else if (jenisKendaraan.value === "motor") {
+      const jenisMotor = document.getElementById("jenisMotor").value;
+      if (jenisMotor === "bebek") konsumsiPerLiter = 50;
+      else if (jenisMotor === "skutik") konsumsiPerLiter = 40;
+      else if (jenisMotor === "sport") konsumsiPerLiter = 30;
+      else if (jenisMotor === "moge") konsumsiPerLiter = 20;
+    }
+
+    if (!konsumsiPerLiter) {
+      hasilBensin.textContent = "Silakan pilih jenis kendaraan dan subjenisnya.";
+      return;
+    }
+
+    const bensinDibutuhkan = jarak / konsumsiPerLiter;
+    hasilBensin.innerHTML = `Perkiraan konsumsi bensin: <strong>${bensinDibutuhkan.toFixed(2)} liter</strong>`;
+  });
+
+  // ===== BAGIAN: Pilihan Wilayah & Kecamatan =====
+  const wilayahSelect = document.getElementById("wilayah");
+  const kecamatanSelect = document.getElementById("kecamatan");
+  const hitungTenggelamBtn = document.getElementById("hitungTenggelamBtn");
+  const hasilTenggelam = document.getElementById("hasilTenggelam");
+
+  const dataKecamatan = {
+    pusat: ["Genteng", "Tegalsari", "Simokerto"],
+    timur: ["Rungkut", "Sukolilo", "Mulyorejo"],
+    barat: ["Tandes", "Asemrowo", "Benowo"],
+    selatan: ["Wonokromo", "Gayungan", "Waru"],
+    utara: ["Kenjeran", "Bulak", "Pabean Cantikan"]
+  };
+
+  const mdplKecamatan = {
+    Genteng: 5, Tegalsari: 7, Simokerto: 4,
+    Rungkut: 8, Sukolilo: 6, Mulyorejo: 3,
+    Tandes: 10, Asemrowo: 2, Benowo: 1,
+    Wonokromo: 9, Gayungan: 11, Waru: 12,
+    Kenjeran: 2, Bulak: 3, "Pabean Cantikan": 1
+  };
+
+  wilayahSelect.addEventListener("change", () => {
+    kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+    const wilayah = wilayahSelect.value;
+    if (wilayah && dataKecamatan[wilayah]) {
+      dataKecamatan[wilayah].forEach(kec => {
+        const option = document.createElement("option");
+        option.value = kec;
+        option.textContent = kec;
+        kecamatanSelect.appendChild(option);
+      });
+      kecamatanSelect.disabled = false;
+      hitungTenggelamBtn.disabled = false;
+    } else {
+      kecamatanSelect.disabled = true;
+      hitungTenggelamBtn.disabled = true;
+    }
+  });
+
+  // ===== BAGIAN: Hitung Waktu Tenggelam =====
+  hitungTenggelamBtn.addEventListener("click", () => {
+    const kec = kecamatanSelect.value;
+    if (!kec) {
+      hasilTenggelam.textContent = "Silakan pilih kecamatan.";
+      return;
+    }
+
+    const mdpl = mdplKecamatan[kec];
+    const tahunSekarang = new Date().getFullYear();
+    const penurunanTahunan = 0.5; // meter per tahun
+    const tahunTenggelam = tahunSekarang + mdpl / penurunanTahunan;
+
+    hasilTenggelam.innerHTML = `Perkiraan ketinggian: <strong>${mdpl} mdpl</strong><br>
+    Diperkirakan akan tenggelam sekitar tahun <strong>${Math.round(tahunTenggelam)}</strong>.`;
+  });
 </script>
 
 </body>
